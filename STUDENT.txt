@@ -1,0 +1,12 @@
+Map Provider: Leaflet with OpenStreetMap tiles (no API key required).
+Tile Layers: 
+- Standard: https://tile.openstreetmap.org/{z}/{x}/{y}.png
+- Satellite: https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z} (or placeholder)
+
+Story API (placeholder - replace with real):
+- Base: https://api.example.com
+- GET /stories - list stories {id, title, description, image (url), lat, lng}
+- POST /stories - create {title, description, image (file base64), lat, lng}
+
+No auth for API assumed. Camera stream closed after use. Responsive tested at 375px/768px/1024px.
+

@@ -1,0 +1,67 @@
+{
+  "name": "Story Map - SPA dengan Peta Interaktif",
+  "short_name": "StoryMap",
+  "description": "Bagikan dan temukan cerita dengan lokasi peta secara real-time",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "categories": ["social", "maps", "photo", "travel"],
+  "icons": [
+    {
+      "src": "/icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/promo-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Halaman Stories dengan peta"
+    },
+    {
+      "src": "/screenshots/promo-narrow.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Halaman Tambah Story"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Lihat Stories",
+      "short_name": "Stories",
+      "description": "Buka halaman stories dan peta",
+      "url": "#/stories",
+      "icons": [{"src": "/icons/icon-72.png", "sizes": "72x72"}]
+    },
+    {
+      "name": "Tambah Story Baru",
+      "short_name": "Tambah",
+      "description": "Buat story baru dengan lokasi",
+      "url": "#/add",
+      "icons": [{"src": "/icons/icon-72.png", "sizes": "72x72"}]
+    }
+  ],
+  "lang": "id-ID",
+  "dir": "ltr",
+  "prefer_related_applications": false
+}
