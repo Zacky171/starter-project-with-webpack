@@ -36,7 +36,8 @@ export default class Map {
           center: coordinate,
         });
       } catch (error) {
-        console.warn('Geolocation unavailable, using default location');
+        console.error('build: error:', error);
+ 
         return new Map(selector, {
           ...options,
           center: jakartaCoordinate,

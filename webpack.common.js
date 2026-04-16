@@ -28,8 +28,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/index.html',
-      publicPath: '/starter-project-with-webpack/'
+      template: './src/index.html'
     })
   ]
 };

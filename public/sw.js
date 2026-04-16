@@ -1,0 +1,91 @@
+const CACHE_NAME = 'storymap-pwa-v1';
+const API_BASE = 'https://story-api.dicoding.dev/v1';
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll([
+      '/',
+      '/index.html',
+      '/bundle.js', // webpack bundle
+      'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+      'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+      '/styles/styles.css'
+    ]))
+  );
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+});
+
+self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+  if (url.origin === location.origin) {
+    event.respondWith(cacheFirst(event.request));
+  } else if (url.href.startsWith(API_BASE)) {
+    event.respondWith(networkFirst(event.request));
+  } else {
+    event.respondWith(networkFirst(event.request));
+  }
+});
+
+async function cacheFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
+  let response = await cache.match(request);
+  if (response) return response;
+  try {
+    response = await fetch(request);
+    cache.put(request, response.clone());
+    return response;
+  } catch (e) {
+    return cache.match(request) || new Response('Offline', {status: 503});
+  }
+}
+
+async function networkFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
+  try {
+    const response = await fetch(request);
+    cache.put(request, response.clone());
+    return response;
+  } catch (e) {
+    return cache.match(request);
+  }
+}
+
+// Placeholder for push
+self.addEventListener('push', event => {
+  const data = event.data.json();
+  const options = {
+    body: data.body || data.description,
+    icon: data.icon || '/icons/icon-192.png',
+    badge: '/icons/icon-192.png',
+    image: data.image || data.photoUrl,
+    data: { id: data.id },
+    actions: [{
+      action: 'view',
+      title: 'Lihat Detail'
+    }]
+  };
+  event.waitUntil(self.registration.showNotification(data.title || 'Story Baru', options));
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  if (event.action === 'view') {
+    event.waitUntil(clients.openWindow(`/ #/story/${event.notification.data.id}`));
+  } else {
+    event.waitUntil(clients.openWindow('/'));
+  }
+});
+

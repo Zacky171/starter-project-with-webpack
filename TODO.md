@@ -1,20 +1,2 @@
-# Deployment TODO Progress Tracker - Restoration Plan
-
-## Approved Restoration Plan Steps:
-1. [x] Update .gitignore (add dist/)
-2. [x] Verify package.json (homepage, scripts, deps)
-3. [x] Install dependencies if needed (npm install)
-4. [ ] Test local dev server (npm run dev)
-5. [ ] Build production (npm run build)
-6. [ ] Deploy to GitHub Pages (npm run deploy)
-7. [ ] Update STUDENT.txt with deployment URL
-8. [ ] Final commit/push all changes
-9. [ ] Verify deployment live
-10. [ ] Mark complete
-
-**Current Progress: Predeploy build done, gh-pages deploying dist/ to GitHub Pages. Steps 1-5 [x], Step 6 in progress. Expected URL ready shortly.**
-
-Details:
-- GitHub repo: https://github.com/Zacky171/starter-project-with-webpack
-- Expected URL: https://zacky171.github.io/starter-project-with-webpack/
+iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3fwAAAABmJLR0QA/wD/AP+gvaeTAAAgAElEQVR4nO3df2zU1f7/8cvmU9m1tS0s1R1opZMRtYgmxhRW2t1dY2Nra2tpQ0srK+tLC0srKytLK8sFS0srKytbI1tFK2tpZWRtba2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2tr
 

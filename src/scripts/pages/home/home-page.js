@@ -2,8 +2,6 @@ import { fadeTransition } from '../../utils/transition.js';
 import { isLoggedIn } from '../../utils/index.js';
 import Map from '../../utils/map.js';
 import { getStories } from '../../data/api.js';
-import { togglePushSubscription, isPushSubscribed } from '../../utils/push.js';
-import { showError, showSuccess } from '../../utils/alert.js';
 
 async function renderHome() {
   const content = document.createElement('section');
@@ -14,9 +12,6 @@ async function renderHome() {
         <h1 class="hero-title">Selamat Datang di Story Map</h1>
         <p class="hero-subtitle mb-6">Bagikan cerita Anda dengan peta interaktif dan foto. Temukan petualangan orang lain di sekitar Anda!</p>
         <div class="hero-buttons">
-          <button id="push-toggle" class="btn btn-secondary mb-3" aria-label="Toggle push notifications">
-            🔔 Push ${isPushSubscribed() ? 'Aktif' : 'Nonaktif'}
-          </button>
           <a href="#/register" data-nav class="cta-btn btn btn-primary large-btn mb-3">🚀 Mulai Petualangan</a>
           <a href="#/stories" data-nav class="btn btn-secondary">📍 Lihat Stories</a>
         </div>
@@ -90,23 +85,8 @@ async function renderHome() {
     }
   } catch (error) {
     console.error('Home page load error:', error);
-    await showError('Gagal memuat halaman', 'Tidak dapat memuat stories/map. Periksa koneksi dan refresh.');
-    recentStoriesEl.innerHTML = '<p>Stories tidak tersedia saat ini. <a href="#/stories">Coba Stories page</a>.</p>';
+    recentStoriesEl.innerHTML = '<p>Error loading stories. Coba refresh halaman.</p>';
   }
-
-  const pushToggle = content.querySelector('#push-toggle');
-  pushToggle.addEventListener('click', async () => {
-    try {
-      const swReg = await navigator.serviceWorker.getRegistration();
-      if (!swReg) throw new Error('Service worker not registered');
-      const status = await togglePushSubscription(swReg);
-      pushToggle.textContent = `🔔 Push ${status === 'subscribed' ? 'Aktif' : 'Nonaktif'}`;
-      pushToggle.className = status === 'subscribed' ? 'btn btn-success' : 'btn btn-secondary';
-      await showSuccess(status === 'subscribed' ? 'Push Aktif!' : 'Push Nonaktif');
-    } catch (e) {
-      await showError('Push gagal', e.message + '. Izinkan notifikasi di browser.');
-    }
-  });
 
   content.classList.add('active');
 }

@@ -2,9 +2,6 @@ import { slideTransition } from '../../utils/transition.js';
 import L from 'leaflet';
 import { postStory } from '../../data/api.js';
 import { MAP } from '../../config.js';
-import { addPending } from '../../utils/db.js';
-import { syncAllPending } from '../../utils/sync.js';
-import { showError, showSuccess } from '../../utils/alert.js';
 
 let addMap, selectedLatLng = null;
 let cameraStream = null;
@@ -31,23 +28,14 @@ async function handleSubmit(e) {
     showError('Klik peta untuk memilih lokasi.');
     return;
   }
-  const formDataObj = Object.fromEntries(new FormData(e.target));
-  formDataObj.lat = selectedLatLng.lat || '';
-  formDataObj.lon = selectedLatLng.lng || '';
+  const formData = new FormData(e.target);
+  formData.append('lat', selectedLatLng.lat || '');
+  formData.append('lon', selectedLatLng.lng || '');
   
   try {
-    if (!navigator.onLine) {
-      await addPending(formDataObj);
-      showSuccess('Story tersimpan offline!', 'Akan disync saat online.');
-      window.location.hash = '#/stories';
-      return;
-    }
-    const formData = new FormData();
-    Object.keys(formDataObj).forEach(key => formData.append(key, formDataObj[key]));
     await postStory(formData);
-    showSuccess('Story berhasil ditambahkan!');
+    alert('Story berhasil ditambahkan!');
     window.location.hash = '#/stories';
-    await syncAllPending(); // sync any pending
   } catch (error) {
     showError('Gagal menambahkan story: ' + error.message + '. Coba gambar lebih kecil (<5MB).');
   }
@@ -102,7 +90,7 @@ function getCameraStream() {
         stopCamera();
       };
     })
-    .catch(err => console.warn('Camera unavailable:', err));
+    .catch(err => console.error('Camera error:', err));
 }
 
 function stopCamera() {
@@ -129,7 +117,7 @@ function renderAddPage() {
       <h1>Tambah Story Baru</h1>
       <p>Klik peta untuk menentukan lokasi cerita Anda</p>
     </div>
-<form id="add-story-form" class="add-form new-form">
+    <form id="add-story-form" class="add-form">
       <div class="form-row">
         <div class="form-group">
           <label for="description">Deskripsi</label>
@@ -185,23 +173,19 @@ function renderAddPage() {
   app.appendChild(content);
   setTimeout(() => {
     content.classList.add('active');
-    // Ensure DOM is fully rendered before init map
-    requestAnimationFrame(() => {
-      const mapContainer = document.getElementById('add-map');
-      if (mapContainer) {
-        initAddMap();
-      } else {
-        console.warn('Map container not ready');
-      }
-    });
-  }, 150);
+    initAddMap();
+  }, 100);
   
   // Cleanup function for external use
   window.stopAddCamera = stopCamera;
 }
 
-// Removed duplicate local showError - using imported from alert.js
-
+function showError(msg) {
+  const errorEl = document.getElementById('add-error');
+  errorEl.textContent = msg;
+  errorEl.style.display = 'block';
+  setTimeout(() => errorEl.style.display = 'none', 5000);
+}
 
 export default renderAddPage;
 

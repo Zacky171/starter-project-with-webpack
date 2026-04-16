@@ -1,8 +1,4 @@
-* { 
-  margin: 0; 
-  padding: 0; 
-  box-sizing: border-box; 
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   font-family: 'Inter', sans-serif;
@@ -84,45 +80,9 @@ nav a:hover {
   padding: 3rem 2.5rem;
   box-shadow: 0 25px 60px rgba(0,0,0,0.15);
   border: 1px solid rgba(59, 130, 246, 0.1);
-  margin: 4rem auto 2.5rem;
-  max-width: 500px;
+  margin-bottom: 2.5rem;
   transform: translateY(0);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.auth-container {
-  max-width: 420px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.auth-container h1 {
-  margin-bottom: 1rem;
-  font-size: clamp(2rem, 6vw, 2.5rem);
-  font-weight: 800;
-  background: linear-gradient(135deg, #1e293b, #3b82f6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1.1;
-}
-
-.auth-container .subtitle {
-  margin-bottom: 2.5rem;
-  font-size: 1.15rem;
-  color: #64748b;
-  line-height: 1.6;
-}
-
-.auth-container form {
-  width: 100%;
-}
-
-.auth-container .auth-footer {
-  margin-top: 2rem;
 }
 
 .card:hover {
@@ -375,89 +335,13 @@ nav a:hover {
   margin: 0 auto;
 }
 
-.form-group {
-  margin-bottom: 1.75rem;
-  width: 100%;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.625rem;
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: #1f2937;
-  letter-spacing: 0.05em;
-}
-
-#login-form input, #register-form input, #register-form textarea {
-  width: 100%;
-  height: 52px;
-  padding: 16px 20px;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  font-size: 16px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  font-weight: 500;
-  line-height: 1.5;
-}
-
 .auth-form input {
   width: 100%;
-  padding: 16px 20px;
+  padding: 12px;
+  margin-bottom: 1rem;
   border: 2px solid #e5e7eb;
   border-radius: 12px;
   font-size: 16px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  font-weight: 500;
-  line-height: 1.5;
-}
-
-#add-story-form textarea#description {
-  height: 200px;
-  resize: vertical;
-  padding: 16px 20px;
-  width: 100%;
-}
-
-#login-form input:focus, #register-form input:focus, #register-form textarea:focus, .auth-form input:focus {
-  border-color: #3b82f6;
-  background: white;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15), 0 8px 20px rgba(59, 130, 246, 0.2);
-  transform: translateY(-1px);
-}
-
-.auth-form input::placeholder {
-  color: #9ca3af;
-  opacity: 1;
-  font-weight: 400;
-  letter-spacing: 0.01em;
-}
-
-.auth-form input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  background: white;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12), 0 8px 24px rgba(59, 130, 246, 0.15);
-  transform: translateY(-1px);
-}
-
-.auth-form input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15), 0 8px 25px rgba(59, 130, 246, 0.2);
-  background: white;
-  transform: translateY(-2px);
-}
-
-.auth-form input::placeholder {
-  color: #9ca3af;
-  font-weight: 400;
 }
 
 .auth-form input:focus {
@@ -633,68 +517,4 @@ section {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
-
-/* Add Story Page - Fix button positioning */
-.add-story-page {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding-bottom: 2rem;
-}
-
-.add-header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.add-story-page, .add-form {
-  display: flex;
-  flex-direction: column;
-}
-
-#add-story-form.new-form {
-  border: 1px solid #aaa;
-  border-radius: 8px;
-  padding: 30px 25px;
-  gap: 1.5rem;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(20px);
-}
-
-.form-row {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.image-inputs {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.image-inputs input[type="file"] {
-  flex: 1;
-  min-width: 200px;
-}
-
-#image-preview, .camera-preview {
-  margin-top: 1rem;
-  max-height: 200px;
-  width: 100%;
-  object-fit: cover;
-}
-
-.map-section {
-  margin-bottom: 1.5rem;
-}
-
-.add-form button[type="submit"] {
-  align-self: center;
-  margin: -2rem 0 0 0;
-  padding: 16px 40px;
-  font-weight: 700;
-  font-size: 1.05rem;
-  min-width: 240px;
 }

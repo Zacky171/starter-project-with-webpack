@@ -1,6 +1,7 @@
 // Main App Presenter - MVP Pattern
 import { initRouter } from '../routes/routes.js';
 import { isLoggedIn, logout } from '../utils/index.js';
+import { togglePushNotification } from '../push-utils.js';
 
 export default function App() {
   if (document.readyState === 'loading') {
@@ -13,7 +14,7 @@ export default function App() {
 function runApp() {
   initRouter();
   
-  updateNavVisibility();
+  updateLogoutButton();
   
   // Guard routes
   if (!isLoggedIn() && (window.location.hash === '#/add' || window.location.hash === '#/stories')) {
@@ -21,23 +22,19 @@ function runApp() {
   }
 }
 
-function updateNavVisibility() {
+function updateLogoutButton() {
   const nav = document.querySelector('nav');
   if (!nav) return;
-
-  const storiesLi = nav.querySelector('a[href="#/stories"]')?.parentElement;
-  const addLi = nav.querySelector('a[href="#/add"]')?.parentElement;
+  
   const loginLi = nav.querySelector('a[href="#/login"]')?.parentElement;
   const registerLi = nav.querySelector('a[href="#/register"]')?.parentElement;
   let logoutLi = nav.querySelector('.logout-li');
-
+  
   if (isLoggedIn()) {
-    // Show all: stories, add, logout; hide login/register
-    if (storiesLi) storiesLi.style.display = '';
-    if (addLi) addLi.style.display = '';
+    // Hide login/register, show logout
     if (loginLi) loginLi.style.display = 'none';
     if (registerLi) registerLi.style.display = 'none';
-
+    
     if (!logoutLi) {
       logoutLi = document.createElement('li');
       logoutLi.className = 'logout-li';
@@ -57,18 +54,39 @@ function updateNavVisibility() {
         }
       });
       logoutLi.appendChild(logoutBtn);
-      nav.querySelector('ul').appendChild(logoutLi);
+nav.querySelector('ul').appendChild(logoutLi);
+
+      // Add push toggle btn
+      let pushLi = nav.querySelector('.push-li');
+      if (!pushLi) {
+        pushLi = document.createElement('li');
+        pushLi.className = 'push-li';
+        const pushBtn = document.createElement('a');
+        pushBtn.href = '#';
+        pushBtn.className = 'push-toggle btn btn-secondary';
+        pushBtn.textContent = '🔔 Push';
+        pushBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          const isSubbed = localStorage.getItem('pushSubscribed') === 'true';
+          const enabled = !isSubbed;
+          await togglePushNotification(enabled);
+          pushBtn.textContent = enabled ? '🔔 Push ON' : '🔔 Push OFF';
+          localStorage.setItem('pushSubscribed', enabled);
+        });
+        pushLi.appendChild(pushBtn);
+        nav.querySelector('ul').appendChild(pushLi);
+      }
     }
   } else {
-    // Show only login/register; hide stories, add, logout
-    if (storiesLi) storiesLi.style.display = 'none';
-    if (addLi) addLi.style.display = 'none';
+    // Show login/register, hide logout/push
     if (loginLi) loginLi.style.display = '';
     if (registerLi) registerLi.style.display = '';
     if (logoutLi) logoutLi.remove();
+    const pushLi = nav.querySelector('.push-li');
+    if (pushLi) pushLi.remove();
   }
 }
 
-// Re-check nav visibility on route changes
-window.addEventListener('hashchange', updateNavVisibility);
+// Re-check logout button on route changes
+window.addEventListener('hashchange', updateLogoutButton);
 

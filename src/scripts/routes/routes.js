@@ -6,6 +6,7 @@ import RegisterPage from '../pages/auth/register-page.js';
 import StoriesPage from '../pages/stories/stories-page.js';
 import AddStoryPage from '../pages/add/add-story-page.js';
 import HomePage from '../pages/home/home-page.js';
+import StoryDetail from '../pages/story-detail.js';
 
 const routes = {
   '/': HomePage,
@@ -34,7 +35,12 @@ const app = document.getElementById('app') || document.querySelector('#app');
   const oldSection = app.querySelector('section');
   if (oldSection) oldSection.classList.remove('active');
   
-  const path = window.location.hash.slice(1) || '/';
+const path = window.location.hash.slice(1) || '/';
+  if (path.startsWith('/story/')) {
+    const id = path.split('/')[2];
+    StoryDetail(id);
+    return;
+  }
   const PageComponent = routes[path] || HomePage;
   PageComponent();
   

@@ -10,5 +10,3 @@ Story API (placeholder - replace with real):
 
 No auth for API assumed. Camera stream closed after use. Responsive tested at 375px/768px/1024px.
 
-**Deployment URL:** https://zacky171.github.io/starter-project-with-webpack/
-
