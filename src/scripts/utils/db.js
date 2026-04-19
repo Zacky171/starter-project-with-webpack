@@ -1,7 +1,7 @@
 import { openDB } from 'idb';
 
 const DB_NAME = 'storydb';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE_STORIES = 'stories';
 const STORE_PENDING = 'pendingSyncs';
 

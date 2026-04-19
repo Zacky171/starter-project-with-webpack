@@ -1,19 +1,31 @@
 import '../styles/styles.css';
 import './utils/index.js';
+import { initPWA } from './utils/pwa.js';
 import App from './pages/app.js';
 
 App();
 
-// PWA Service Worker & Install
-let deferredPrompt;
+// Init PWA features
+initPWA();
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js', {scope: '/'}).then(registration => {
-      console.log('SW registered', registration);
-    }).catch(error => {
-      console.error('SW registration failed', error);
-    });
+    navigator.serviceWorker.register('/sw.js', {scope: '/'})
+      .then(registration => {
+        console.log('SW registered', registration);
+        
+        // Register background sync for pending stories
+        if ('sync' in window.SyncManager) {
+          registration.sync.register('story-sync').then(() => {
+            console.log('Story sync registered');
+          }).catch(err => {
+            console.warn('Story sync registration failed:', err);
+          });
+        }
+      })
+      .catch(error => {
+        console.error('SW registration failed', error);
+      });
   });
 }
 

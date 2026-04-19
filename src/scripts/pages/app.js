@@ -1,7 +1,6 @@
 // Main App Presenter - MVP Pattern
 import { initRouter } from '../routes/routes.js';
 import { isLoggedIn, logout } from '../utils/index.js';
-import { togglePushNotification } from '../push-utils.js';
 
 export default function App() {
   if (document.readyState === 'loading') {
@@ -16,74 +15,66 @@ function runApp() {
   
   updateLogoutButton();
   
-  // Guard routes
-  if (!isLoggedIn() && (window.location.hash === '#/add' || window.location.hash === '#/stories')) {
+  // Guard routes - strengthened
+  guardStoriesAccess();
+}
+
+function guardStoriesAccess() {
+  const protectedPaths = ['#/add', '#/stories'];
+  if (!isLoggedIn() && protectedPaths.some(path => window.location.hash === path)) {
     window.location.hash = '#/login';
+    return;
   }
 }
 
 function updateLogoutButton() {
   const nav = document.querySelector('nav');
   if (!nav) return;
-  
-  const loginLi = nav.querySelector('a[href="#/login"]')?.parentElement;
-  const registerLi = nav.querySelector('a[href="#/register"]')?.parentElement;
-  let logoutLi = nav.querySelector('.logout-li');
-  
-  if (isLoggedIn()) {
-    // Hide login/register, show logout
-    if (loginLi) loginLi.style.display = 'none';
-    if (registerLi) registerLi.style.display = 'none';
-    
-    if (!logoutLi) {
-      logoutLi = document.createElement('li');
-      logoutLi.className = 'logout-li';
-      const logoutBtn = document.createElement('a');
-      logoutBtn.href = '#/login';
-      logoutBtn.className = 'logout btn btn-secondary';
-      logoutBtn.textContent = 'Logout';
-      logoutBtn.addEventListener('click', e => {
-        e.preventDefault();
-        if (!confirm('Yakin ingin logout?')) {
-          return;
-        }
-        logout();
-        window.location.hash = '#/login';
-        if (typeof window.stopAddCamera === 'function') {
-          window.stopAddCamera();
-        }
-      });
-      logoutLi.appendChild(logoutBtn);
-nav.querySelector('ul').appendChild(logoutLi);
+  const logoutLi = nav.querySelector('.logout-li') || document.createElement('li');
+  const authItems = Array.from(nav.querySelectorAll('.auth-item'));
+  const storyItems = Array.from(nav.querySelectorAll('.story-item'));
 
-      // Add push toggle btn
-      let pushLi = nav.querySelector('.push-li');
-      if (!pushLi) {
-        pushLi = document.createElement('li');
-        pushLi.className = 'push-li';
-        const pushBtn = document.createElement('a');
-        pushBtn.href = '#';
-        pushBtn.className = 'push-toggle btn btn-secondary';
-        pushBtn.textContent = '🔔 Push';
-        pushBtn.addEventListener('click', async (e) => {
-          e.preventDefault();
-          const isSubbed = localStorage.getItem('pushSubscribed') === 'true';
-          const enabled = !isSubbed;
-          await togglePushNotification(enabled);
-          pushBtn.textContent = enabled ? '🔔 Push ON' : '🔔 Push OFF';
-          localStorage.setItem('pushSubscribed', enabled);
-        });
-        pushLi.appendChild(pushBtn);
-        nav.querySelector('ul').appendChild(pushLi);
+  function ensureLogoutHandler(li) {
+    if (!li) return;
+    const newAnchor = document.createElement('a');
+    newAnchor.href = '#/login';
+    newAnchor.className = 'logout btn btn-secondary logout';
+    newAnchor.textContent = 'Logout';
+    newAnchor.addEventListener('click', e => {
+      e.preventDefault();
+      if (!confirm('Yakin ingin logout?')) return;
+      logout();
+      window.location.hash = '#/login';
+      if (typeof window.stopAddCamera === 'function') {
+        window.stopAddCamera();
       }
+      updateLogoutButton();
+    });
+    const existing = li.querySelector('a.logout');
+    if (existing) {
+      li.replaceChild(newAnchor, existing);
+    } else {
+      li.appendChild(newAnchor);
     }
+  }
+
+  if (isLoggedIn()) {
+    // Hide all auth-related items and show story items
+    authItems.forEach(item => item.style.display = 'none');
+    storyItems.forEach(item => item.style.display = '');
+
+    // Ensure logout element exists and has handler
+    if (!logoutLi.parentNode) {
+      logoutLi.className = 'logout-li';
+      nav.querySelector('ul').appendChild(logoutLi);
+    }
+    ensureLogoutHandler(logoutLi);
+    logoutLi.style.display = '';
   } else {
-    // Show login/register, hide logout/push
-    if (loginLi) loginLi.style.display = '';
-    if (registerLi) registerLi.style.display = '';
-    if (logoutLi) logoutLi.remove();
-    const pushLi = nav.querySelector('.push-li');
-    if (pushLi) pushLi.remove();
+    // Show auth items, hide story items and logout
+    authItems.forEach(item => item.style.display = '');
+    storyItems.forEach(item => item.style.display = 'none');
+    if (logoutLi) logoutLi.style.display = 'none';
   }
 }
 

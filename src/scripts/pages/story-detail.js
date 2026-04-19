@@ -1,7 +1,7 @@
-import Map from '../../utils/map.js';
-import { getStories } from '../../data/api.js';
+import Map from '../utils/map.js';
+import { getStories } from '../data/api.js';
 
-async function renderStoryDetail(id) {
+const renderStoryDetail = async (id) => {
   const app = document.getElementById('app');
   const content = document.createElement('section');
   content.innerHTML = `
@@ -43,5 +43,3 @@ async function renderStoryDetail(id) {
 }
 
 export default renderStoryDetail;
-</xai:function_call name="edit_file">
-<parameter name="path">src/scripts/pages/app.js

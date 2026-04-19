@@ -28,6 +28,64 @@ self.addEventListener('activate', event => {
   );
 });
 
+// Background sync for pending story posts (uses IndexedDB 'pendingSyncs')
+self.addEventListener('sync', event => {
+  if (event.tag === 'story-sync') {
+    event.waitUntil((async () => {
+      try {
+        const db = await openDatabase();
+        const tx = db.transaction('pendingSyncs', 'readwrite');
+        const store = tx.objectStore('pendingSyncs');
+        const allReq = store.getAll();
+        const pendings = await new Promise((res, rej) => {
+          allReq.onsuccess = () => res(allReq.result);
+          allReq.onerror = () => rej(allReq.error);
+        });
+        let synced = 0;
+        for (const p of pendings) {
+          const formData = new FormData();
+          Object.keys(p).forEach(key => {
+            if (key === 'id' || key === 'timestamp') return;
+            try {
+              formData.append(key, p[key]);
+            } catch (e) {
+              // fallback for non-cloneable values
+              formData.append(key, String(p[key]));
+            }
+          });
+          try {
+            const res = await fetch(`${API_BASE}/stories/guest`, { method: 'POST', body: formData });
+            if (res && res.ok) {
+              store.delete(p.id);
+              synced++;
+            }
+          } catch (err) {
+            console.warn('Sync post failed', err);
+          }
+        }
+        if (synced > 0) {
+          console.log(`Synced ${synced} pending stories`);
+        }
+      } catch (err) {
+        console.warn('Background sync failed', err);
+      }
+    })());
+  }
+});
+
+function openDatabase() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('storydb', 2);
+    request.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('stories')) db.createObjectStore('stories', { keyPath: 'id', autoIncrement: true });
+      if (!db.objectStoreNames.contains('pendingSyncs')) db.createObjectStore('pendingSyncs', { keyPath: 'id', autoIncrement: true });
+    };
+    request.onsuccess = (e) => resolve(e.target.result);
+    request.onerror = (e) => reject(e.target.error);
+  });
+}
+
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   if (url.origin === location.origin) {
@@ -63,29 +121,6 @@ async function networkFirst(request) {
   }
 }
 
-// Placeholder for push
-self.addEventListener('push', event => {
-  const data = event.data.json();
-  const options = {
-    body: data.body || data.description,
-    icon: data.icon || '/icons/icon-192.png',
-    badge: '/icons/icon-192.png',
-    image: data.image || data.photoUrl,
-    data: { id: data.id },
-    actions: [{
-      action: 'view',
-      title: 'Lihat Detail'
-    }]
-  };
-  event.waitUntil(self.registration.showNotification(data.title || 'Story Baru', options));
-});
+// Push notifications disabled in this forked build.
 
-self.addEventListener('notificationclick', event => {
-  event.notification.close();
-  if (event.action === 'view') {
-    event.waitUntil(clients.openWindow(`/ #/story/${event.notification.data.id}`));
-  } else {
-    event.waitUntil(clients.openWindow('/'));
-  }
-});
 

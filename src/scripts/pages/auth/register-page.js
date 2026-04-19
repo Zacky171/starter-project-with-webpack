@@ -7,7 +7,7 @@ function renderRegisterForm() {
   content.innerHTML = `
     <h1>Daftar Akun Baru</h1>
     <p class="subtitle">Buat akun untuk mulai berbagi cerita dengan peta</p>
-    <form id="register-form">
+    <form id="register-form" class="auth-form">
       <div class="form-group">
         <label for="reg-name">Nama Lengkap</label>
         <input type="text" id="reg-name" autocomplete="name" placeholder="Masukkan nama lengkap Anda" required>

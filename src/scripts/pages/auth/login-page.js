@@ -7,7 +7,7 @@ function renderLoginForm() {
   content.innerHTML = `
     <h1>Selamat Datang Kembali</h1>
     <p class="subtitle">Masuk untuk melanjutkan petualangan cerita Anda</p>
-    <form id="login-form">
+    <form id="login-form" class="auth-form">
       <div class="form-group">
         <label for="email">Email</label>
         <input type="email" id="email" autocomplete="email" placeholder="Masukkan email Anda" required aria-describedby="email-error">

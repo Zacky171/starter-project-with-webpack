@@ -27,3 +27,15 @@ export async function syncAllPending() {
     console.warn('Sync error', err);
   }
 };
+
+export function registerBackgroundSync() {
+  if ('serviceWorker' in navigator && 'sync' in window.SyncManager) {
+    navigator.serviceWorker.ready.then(registration => {
+      registration.sync.register('story-sync').then(() => {
+        console.log('Background sync registered');
+      }).catch(err => {
+        console.warn('Background sync registration failed:', err);
+      });
+    });
+  }
+}

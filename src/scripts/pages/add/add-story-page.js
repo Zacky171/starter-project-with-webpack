@@ -1,6 +1,7 @@
 import { slideTransition } from '../../utils/transition.js';
 import L from 'leaflet';
 import { postStory } from '../../data/api.js';
+import { addPending } from '../../utils/db.js';
 import { MAP } from '../../config.js';
 
 let addMap, selectedLatLng = null;
@@ -33,11 +34,22 @@ async function handleSubmit(e) {
   formData.append('lon', selectedLatLng.lng || '');
   
   try {
-    await postStory(formData);
-    alert('Story berhasil ditambahkan!');
+    if (navigator.onLine) {
+      await postStory(formData);
+      alert('Story berhasil ditambahkan!');
+    } else {
+      // Offline: queue for sync
+      await addPending(Object.fromEntries(formData));
+      alert('Story disimpan offline dan akan di-sync saat online!');
+    }
     window.location.hash = '#/stories';
   } catch (error) {
-    showError('Gagal menambahkan story: ' + error.message + '. Coba gambar lebih kecil (<5MB).');
+    if (!navigator.onLine) {
+      await addPending(Object.fromEntries(formData));
+      alert('Story disimpan offline dan akan di-sync saat online!');
+    } else {
+      showError('Gagal menambahkan story: ' + error.message + '. Coba gambar lebih kecil (<5MB).');
+    }
   }
 }
 

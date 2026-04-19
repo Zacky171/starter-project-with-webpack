@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Story Map - SPA dengan Peta</title>
-  <link rel="manifest" href="/manifest.json">
+<link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <meta name="theme-color" content="#3b82f6">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -21,10 +21,15 @@
 <!-- <img src="./images/logo.png" alt="Story Map Logo" width="50" height="50"> -->
     <nav role="navigation" aria-label="Main navigation">
       <ul>
-        <li><a href="#/stories" data-nav>Stories</a></li>
-        <li><a href="#/add" data-nav>Tambah Story</a></li>
-        <li><a href="#/login" data-nav>Login</a></li>
-        <li><a href="#/register" data-nav>Register</a></li>
+        <li class="story-item"><a href="#/add" data-nav>Tambah Story</a></li>
+        <li class="story-item"><a href="#/stories" data-nav>Stories</a></li>
+        <li class="logout-li" style="display: none;">
+          <a href="#" class="logout btn btn-secondary">Logout</a>
+        </li>
+                <li class="auth-item"><a href="#/Home" data-nav>Home</a></li>
+
+        <li class="auth-item"><a href="#/login" data-nav>Login</a></li>
+        <li class="auth-item"><a href="#/register" data-nav>Register</a></li>
       </ul>
     </nav>
   </header>

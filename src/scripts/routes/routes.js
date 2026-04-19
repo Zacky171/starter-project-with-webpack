@@ -31,11 +31,18 @@ export function initRouter() {
 function handleRoute() {
   if (!document.getElementById('app')) return;
 
-const app = document.getElementById('app') || document.querySelector('#app');
+  const app = document.getElementById('app') || document.querySelector('#app');
   const oldSection = app.querySelector('section');
   if (oldSection) oldSection.classList.remove('active');
   
-const path = window.location.hash.slice(1) || '/';
+  const path = window.location.hash.slice(1) || '/';
+  
+  // Auth guard for protected routes
+  if (!isLoggedIn() && (path === '/stories' || path === '/add')) {
+    window.location.hash = '#/login';
+    return;
+  }
+  
   if (path.startsWith('/story/')) {
     const id = path.split('/')[2];
     StoryDetail(id);

@@ -1,19 +1,34 @@
 import { getStories } from '../../data/api.js';
+import { getAllStories, putStory } from '../../utils/db.js';
 import Map from '../../utils/map.js';
-import { getFavorites, addFavorite, removeFavorite, searchFavorites, sortFavorites } from '../db.js';
+import { getFavorites, addFavorite, removeFavorite, searchFavorites, sortFavorites } from '../../utils/favorites.js';
+import { isLoggedIn } from '../../utils/index.js';
 
 let stories = [];
 let favorites = [];
 let favIds = new Set();
 
 async function renderStoriesPage() {
+  // Explicit guard - should not reach here unauth
+  if (!isLoggedIn()) {
+    window.location.hash = '#/login';
+    return;
+  }
+
   const content = document.createElement('section');
   content.innerHTML = `
-    <header style="margin-bottom: 2rem;">
-      <h1>Story Map</h1>
-      <label for="filter" class="search-label">
-        🔍 <input type="search" id="filter" placeholder="Cari story..." aria-label="Filter stories">
-      </label>
+    <header class="stories-header">
+      <div class="stories-header-left">
+        <h1 class="page-title">Story Map</h1>
+      </div>
+      <div class="stories-header-center">
+        <label for="filter" class="search-label">
+          🔍 <input type="search" id="filter" placeholder="Cari story..." aria-label="Filter stories">
+        </label>
+      </div>
+      <div class="stories-header-right">
+        <a href="#/add" data-nav class="add-story-btn btn btn-primary"> Tambah Story</a>
+      </div>
     </header>
     <div id="story-map" style="height: 500px; width: 100%; min-height: 500px; margin-bottom: 2rem;"></div>
     <section class="stories-preview mt-12">
@@ -54,16 +69,25 @@ async function renderStoriesPage() {
   // Init map
   const storiesMap = await Map.build('#story-map', { zoom: 12, locate: true });
 
-  // Load stories
+  // Load stories - Advanced offline: try API → IDB fallback
   const loadStories = async () => {
     try {
       const data = await getStories();
       stories = data;
-      renderRecentStories(recentStoriesEl, stories);
-      addMarkers(storiesMap, stories);
+      // Cache to IDB for future offline
+      for (const story of data) {
+        await putStory(story);
+      }
     } catch (error) {
-      console.error('Error loading stories:', error);
-      favStatus.textContent = 'Offline: using cached data';
+      console.warn('API failed, loading from IDB:', error);
+      stories = await getAllStories();
+    }
+    
+    renderRecentStories(recentStoriesEl, stories);
+    addMarkers(storiesMap, stories);
+    
+    if (!navigator.onLine) {
+      favStatus.textContent = `📴 Offline mode - Showing ${stories.length} cached stories from IndexedDB`;
     }
   };
 
@@ -146,8 +170,8 @@ function addMarkers(map, storyList) {
   });
 }
 
-// Global fav toggle
-window.toggleFav = async (id, event) {
+// Global fav toggle function (for onclick)
+async function toggleFav(id, event) {
   event.stopPropagation();
   const story = stories.find(s => s.id === id);
   if (!story) return;
@@ -167,7 +191,9 @@ window.toggleFav = async (id, event) {
     if (recentEl) renderRecentStories(recentEl, stories);
     if (favGrid) renderFavorites(favGrid, favorites);
   }
-};
+}
+
+window.toggleFav = toggleFav;
 
 // Debounce
 function debounce(func, wait) {
