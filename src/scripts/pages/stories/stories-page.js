@@ -1,6 +1,6 @@
 import { getStories } from '../../data/api.js';
 import Map from '../../utils/map.js';
-import { getFavorites, addFavorite, removeFavorite, searchFavorites, sortFavorites } from '../db.js';
+import { getFavorites, addFavorite, removeFavorite, searchFavorites, sortFavorites } from '../../utils/db.js';
 
 let stories = [];
 let favorites = [];
@@ -9,7 +9,7 @@ let favIds = new Set();
 async function renderStoriesPage() {
   const content = document.createElement('section');
   content.innerHTML = `
-    <header style="margin-bottom: 2rem;">
+    <header class="story-header">
       <h1>Story Map</h1>
       <label for="filter" class="search-label">
         🔍 <input type="search" id="filter" placeholder="Cari story..." aria-label="Filter stories">
@@ -44,7 +44,7 @@ async function renderStoriesPage() {
   app.innerHTML = '';
   app.appendChild(content);
 
-  const mapDiv = content.querySelector('#story-map');
+  const storyMapDiv = content.querySelector('#story-map');
   const recentStoriesEl = content.querySelector('#recent-stories');
   const favGrid = content.querySelector('#favorites-grid');
   const favSearch = content.querySelector('#fav-search');
@@ -78,8 +78,51 @@ async function renderStoriesPage() {
     }
   };
 
-  await loadStories();
+await loadStories();
   await loadFavorites();
+  
+  // Auto-scroll a bit down to recent stories after load (task: agak kebawah)
+  setTimeout(() => {
+    // Scroll a bit further down (agak kebawah more) to middle of recent stories
+    window.scrollTo({ 
+      top: 850, 
+      behavior: 'smooth' 
+    });
+  }, 1200);
+
+  // Add classes for scroll-hide
+  const pageHeader = content.querySelector('header');
+  const favControls = content.querySelector('.fav-controls');
+  if (pageHeader) pageHeader.classList.add('story-header');
+  if (favControls) favControls.classList.add('fav-controls');
+
+  // Scroll hide/show logic
+  let lastScrollY = window.scrollY;
+  let ticking = false;
+
+  function updateScrollHide() {
+    const currentScrollY = window.scrollY;
+    if (currentScrollY > 100) {
+      if (currentScrollY > lastScrollY + 10) {
+        // Scroll down - hide
+        pageHeader?.classList.add('hide-scroll');
+        favControls?.classList.add('hide-scroll');
+      } else if (currentScrollY < lastScrollY - 10) {
+        // Scroll up - show
+        pageHeader?.classList.remove('hide-scroll');
+        favControls?.classList.remove('hide-scroll');
+      }
+    }
+    lastScrollY = currentScrollY;
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(updateScrollHide);
+      ticking = true;
+    }
+  });
 
   // Recent filter
   content.querySelector('#filter').addEventListener('input', (e) => {
@@ -113,7 +156,7 @@ async function renderStoriesPage() {
 
 function renderRecentStories(container, storiesList) {
   container.innerHTML = storiesList.slice(0, 6).map(story => createStoryCard(story)).join('') || 
-    '<p style="text-align: center; padding: 2rem; color: #64748b;">Tidak ada stories.</p>';
+    '<p style="display: none;">Tidak ada stories.</p>';
 }
 
 function createStoryCard(story) {
@@ -126,7 +169,7 @@ function createStoryCard(story) {
         <p>${story.description || 'No description'}</p>
         <small>🕒 ${new Date(story.createdAt).toLocaleDateString('id-ID')}</small>
       </div>
-      <button class="fav-btn ${isFav ? 'fav-active' : ''}" onclick="toggleFav('${story.id}', event)" aria-label="${isFav ? 'Remove favorite' : 'Add favorite'}" title="${isFav ? 'Unlike' : 'Like'}">
+      <button class="fav-btn ${isFav ? 'fav-active' : ''}" onclick="window.toggleFav('${story.id}', event)" aria-label="${isFav ? 'Remove favorite' : 'Add favorite'}" title="${isFav ? 'Unlike' : 'Like'}">
         ${isFav ? '❤️' : '🤍'}
       </button>
     </article>
@@ -135,7 +178,7 @@ function createStoryCard(story) {
 
 function renderFavorites(container, favList) {
   container.innerHTML = favList.map(story => createStoryCard(story)).join('') || 
-    '<p style="text-align: center; padding: 2rem; color: #64748b;">Tidak ada favorites. Tambahkan dari stories.</p>';
+    '<p style="display: none;">Tidak ada favorites. Tambahkan dari stories.</p>';
 }
 
 function addMarkers(map, storyList) {
@@ -146,8 +189,7 @@ function addMarkers(map, storyList) {
   });
 }
 
-// Global fav toggle
-window.toggleFav = async (id, event) {
+window.toggleFav = async (id, event) => {
   event.stopPropagation();
   const story = stories.find(s => s.id === id);
   if (!story) return;
@@ -158,10 +200,8 @@ window.toggleFav = async (id, event) {
     await addFavorite(story);
     favIds.add(id);
   }
-  // Re-render if needed, or live update since single
   const page = document.querySelector('.stories-preview');
   if (page) {
-    // Re-render recent/favs
     const recentEl = page.querySelector('#recent-stories');
     const favGrid = page.querySelector('#favorites-grid');
     if (recentEl) renderRecentStories(recentEl, stories);
@@ -169,7 +209,6 @@ window.toggleFav = async (id, event) {
   }
 };
 
-// Debounce
 function debounce(func, wait) {
   let timeout;
   return function (...args) {
@@ -179,4 +218,3 @@ function debounce(func, wait) {
 }
 
 export default renderStoriesPage;
-

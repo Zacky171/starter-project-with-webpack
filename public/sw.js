@@ -3,14 +3,17 @@ const API_BASE = 'https://story-api.dicoding.dev/v1';
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll([
+  caches.open(CACHE_NAME).then(cache => cache.addAll([
       '/',
       '/index.html',
       '/bundle.js', // webpack bundle
-      'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-      'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
-      '/styles/styles.css'
-    ]))
+    ]).catch(e => console.log('SW cache error:', e)).then(() => 
+      Promise.all([
+        cache.add('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'),
+        cache.add('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'),
+        cache.add('/styles/styles.css')
+      ])
+    ))
   );
 });
 

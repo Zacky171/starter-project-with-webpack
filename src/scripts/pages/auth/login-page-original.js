@@ -1,19 +1,6 @@
 import { fadeTransition } from '../../utils/transition.js';
 import { login } from '../../utils/auth.js';
 
-function togglePasswordVisibility(btn, inputId) {
-  const input = document.getElementById(inputId);
-  if (input.type === 'password') {
-    input.type = 'text';
-    btn.innerHTML = '&nbsp;🙈';
-    btn.title = 'Hide password';
-  } else {
-    input.type = 'password';
-    btn.innerHTML = '&nbsp;👁️';
-    btn.title = 'Show password';
-  }
-}
-
 function renderLoginForm() {
   const content = document.createElement('section');
   content.classList.add('card', 'auth-container');
@@ -28,46 +15,30 @@ function renderLoginForm() {
       <div class="form-group">
         <label for="password">Password</label>
         <input type="password" id="password" autocomplete="current-password" placeholder="Masukkan password" required aria-describedby="pass-error">
-        <button type="button" class="password-toggle" id="toggle-login-password" title="Show password">👁️</button>
       </div>
       <div id="login-error" class="error" role="alert" aria-live="polite"></div>
-      <button type="submit" class="btn btn-primary large-btn" id="login-btn">
-        Masuk Sekarang
-      </button>
+      <button type="submit" class="btn btn-primary large-btn">Masuk Sekarang</button>
     </form>
     <div class="auth-footer">
       <p>Belum punya akun? <a href="#/register" data-nav class="link-btn">Buat akun baru</a></p>
     </div>
   `;
   
-  // Password toggle
-  const togglePassBtn = content.querySelector('#toggle-login-password');
-  togglePassBtn.addEventListener('click', () => togglePasswordVisibility(togglePassBtn, 'password'));
-  
   const form = content.querySelector('#login-form');
-  const submitBtn = content.querySelector('#login-btn');
-  const errorEl = content.querySelector('#login-error');
-  
   form.addEventListener('submit', async e => {
     e.preventDefault();
-    const email = content.querySelector('#email').value.trim();
+    const email = content.querySelector('#email').value;
     const password = content.querySelector('#password').value;
+    const errorEl = content.querySelector('#login-error');
     
     errorEl.style.display = 'none';
-    submitBtn.disabled = true;
-    submitBtn.classList.add('loading');
-    submitBtn.textContent = 'Masuk...';
     
     try {
       await login(email, password);
       window.location.hash = '#/stories';
-    } catch (error) {
+    } catch {
       errorEl.textContent = 'Email atau password salah. Coba lagi.';
       errorEl.style.display = 'block';
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.classList.remove('loading');
-      submitBtn.textContent = 'Masuk Sekarang';
     }
   });
   

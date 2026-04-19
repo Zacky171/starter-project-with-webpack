@@ -1,47 +1,55 @@
-import Map from '../../utils/map.js';
-import { getStories } from '../../data/api.js';
+import { getStories } from '../data/api.js';
+import Map from '../utils/map.js';
+import { getFavorites, addFavorite, removeFavorite } from '../utils/db.js';
+
+let favIds = new Set();
 
 async function renderStoryDetail(id) {
   const app = document.getElementById('app');
   const content = document.createElement('section');
   content.innerHTML = `
     <header>
-      <h1>Detail Story</h1>
+      <h1>Story Detail</h1>
+      <button onclick="window.history.back()">← Back</button>
     </header>
-    <article id="story-detail">
-      <p>Loading story ID: ${id}...</p>
-    </article>
-    <div id="detail-map" style="height: 400px; margin: 2rem 0;"></div>
-    <a href="#/stories" class="btn btn-secondary">Kembali ke Stories</a>
+    <div class="loading">Loading...</div>
   `;
+
   app.innerHTML = '';
   app.appendChild(content);
-  content.classList.add('active');
 
-  // Try get from API list or local
   try {
     const stories = await getStories();
-    const story = stories.find(s => s.id === id);
-    if (story) {
-      document.getElementById('story-detail').innerHTML = `
-        <img src="${story.photoUrl}" alt="${story.name}" style="max-width: 100%; height: auto;">
-        <h2>${story.name}</h2>
-        <p>${story.description}</p>
-        <small>${new Date(story.createdAt).toLocaleString('id-ID')}</small>
-      `;
-      if (story.lat && story.lon) {
-        const detailMap = await Map.build('#detail-map');
-        detailMap.addMarker(parseFloat(story.lat), parseFloat(story.lon), story.name);
-        detailMap.setView(story.lat, story.lon, 15);
-      }
-    } else {
-      document.getElementById('story-detail').innerHTML = '<p>Story tidak ditemukan.</p>';
+    const story = stories.find(s => s.id == id);
+    if (!story) {
+      content.innerHTML = '<p>Story not found</p>';
+      return;
     }
-  } catch {
-    document.getElementById('story-detail').innerHTML = '<p>Error loading story (offline?).</p>';
+
+    const favorites = await getFavorites();
+    const isFav = favorites.some(f => f.id == story.id);
+    favIds = new Set(favorites.map(f => f.id));
+
+    content.innerHTML = `
+      <div class="story-detail">
+        <img src="${story.photoUrl || ''}" alt="${story.name}">
+        <h1>${story.name}</h1>
+        <p>${story.description || 'No description'}</p>
+        <div class="meta">${new Date(story.createdAt).toLocaleDateString('id-ID')}</div>
+        <button onclick="window.toggleFav('${story.id}', event)" class="fav-btn ${isFav ? 'active' : ''}">
+          ${isFav ? '❤️ Unlike' : '🤍 Like'}
+        </button>
+        ${story.lat && story.lon ? `<div id="story-map" style="height: 300px;"></div>` : ''}
+      </div>
+    `;
+
+    if (story.lat && story.lon) {
+      Map.build('#story-map', { center: [parseFloat(story.lat), parseFloat(story.lon)], zoom: 15 })
+        .then(map => map.addMarker(parseFloat(story.lat), parseFloat(story.lon), story.name));
+    }
+  } catch (error) {
+    content.innerHTML = `<p>Error: ${error.message}</p>`;
   }
 }
 
 export default renderStoryDetail;
-</xai:function_call name="edit_file">
-<parameter name="path">src/scripts/pages/app.js

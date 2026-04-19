@@ -1,7 +1,6 @@
 // Main App Presenter - MVP Pattern
 import { initRouter } from '../routes/routes.js';
-import { isLoggedIn, logout } from '../utils/index.js';
-import { togglePushNotification } from '../push-utils.js';
+import { isLoggedIn, logout } from '../utils/auth.js';
 
 export default function App() {
   if (document.readyState === 'loading') {
@@ -13,8 +12,7 @@ export default function App() {
 
 function runApp() {
   initRouter();
-  
-  updateLogoutButton();
+  updateNavAuth();
   
   // Guard routes
   if (!isLoggedIn() && (window.location.hash === '#/add' || window.location.hash === '#/stories')) {
@@ -22,71 +20,53 @@ function runApp() {
   }
 }
 
-function updateLogoutButton() {
+function updateNavAuth() {
   const nav = document.querySelector('nav');
   if (!nav) return;
   
+  const storiesLi = nav.querySelector('a[href="#/stories"]')?.parentElement;
+  const addLi = nav.querySelector('a[href="#/add"]')?.parentElement;
   const loginLi = nav.querySelector('a[href="#/login"]')?.parentElement;
   const registerLi = nav.querySelector('a[href="#/register"]')?.parentElement;
+  const homeLi = nav.querySelector('a[href="#/"]')?.parentElement;
   let logoutLi = nav.querySelector('.logout-li');
+
   
   if (isLoggedIn()) {
-    // Hide login/register, show logout
+    // Show Stories/Add, hide Home/login/register, show logout
+    if (storiesLi) storiesLi.style.display = '';
+    if (addLi) addLi.style.display = '';
+    if (homeLi) homeLi.style.display = 'none';
     if (loginLi) loginLi.style.display = 'none';
     if (registerLi) registerLi.style.display = 'none';
+
     
     if (!logoutLi) {
       logoutLi = document.createElement('li');
       logoutLi.className = 'logout-li';
       const logoutBtn = document.createElement('a');
-      logoutBtn.href = '#/login';
+      logoutBtn.href = '#';
       logoutBtn.className = 'logout btn btn-secondary';
       logoutBtn.textContent = 'Logout';
       logoutBtn.addEventListener('click', e => {
         e.preventDefault();
-        if (!confirm('Yakin ingin logout?')) {
-          return;
-        }
         logout();
         window.location.hash = '#/login';
-        if (typeof window.stopAddCamera === 'function') {
-          window.stopAddCamera();
-        }
       });
       logoutLi.appendChild(logoutBtn);
-nav.querySelector('ul').appendChild(logoutLi);
-
-      // Add push toggle btn
-      let pushLi = nav.querySelector('.push-li');
-      if (!pushLi) {
-        pushLi = document.createElement('li');
-        pushLi.className = 'push-li';
-        const pushBtn = document.createElement('a');
-        pushBtn.href = '#';
-        pushBtn.className = 'push-toggle btn btn-secondary';
-        pushBtn.textContent = '🔔 Push';
-        pushBtn.addEventListener('click', async (e) => {
-          e.preventDefault();
-          const isSubbed = localStorage.getItem('pushSubscribed') === 'true';
-          const enabled = !isSubbed;
-          await togglePushNotification(enabled);
-          pushBtn.textContent = enabled ? '🔔 Push ON' : '🔔 Push OFF';
-          localStorage.setItem('pushSubscribed', enabled);
-        });
-        pushLi.appendChild(pushBtn);
-        nav.querySelector('ul').appendChild(pushLi);
-      }
+      nav.querySelector('ul').appendChild(logoutLi);
     }
   } else {
-    // Show login/register, hide logout/push
+    // Show login/register/Home only, hide Stories/Add/Logout
+    if (storiesLi) storiesLi.style.display = 'none';
+    if (addLi) addLi.style.display = 'none';
+    if (homeLi) homeLi.style.display = '';
     if (loginLi) loginLi.style.display = '';
     if (registerLi) registerLi.style.display = '';
     if (logoutLi) logoutLi.remove();
-    const pushLi = nav.querySelector('.push-li');
-    if (pushLi) pushLi.remove();
   }
+
 }
 
-// Re-check logout button on route changes
-window.addEventListener('hashchange', updateLogoutButton);
-
+// Re-check on route changes
+window.addEventListener('hashchange', updateNavAuth);

@@ -1,2 +1,12 @@
-iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3fwAAAABmJLR0QA/wD/AP+gvaeTAAAgAElEQVR4nO3df2zU1f7/8cvmU9m1tS0s1R1opZMRtYgmxhRW2t1dY2Nra2tpQ0srK+tLC0srKytLK8sFS0srKytbI1tFK2tpZWRtba2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2trK2tr
+# TODO: Enhance Registration Form (rapikan)
 
+## Steps
+- [x] Step 1: Enhance register-page.js (password strength, confirm pass, loading, toggle, validation)
+## COMPLETED ✅
+
+All steps done:
+- [x] Step 1
+- [x] Step 2  
+- [x] Step 3 (tested via dev server)
+- [x] Step 4
+- [x] Step 5

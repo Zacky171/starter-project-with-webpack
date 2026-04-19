@@ -1,6 +1,8 @@
-// API Mapper for reverse geocoding (placeholder)
-// In production, use Nominatim or Google Maps API
-export async function getPlaceNameByCoordinate(lat, lon) {
-  // Mock implementation for demo
-  return 'Lokasi dekat Anda';
+export async function getStory(id) {
+  try {
+    const stories = await getStories();
+    return stories.find(s => s.id == id);
+  } catch {
+    return null;
+  }
 }
