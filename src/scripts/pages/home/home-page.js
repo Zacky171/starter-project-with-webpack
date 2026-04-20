@@ -59,36 +59,45 @@ async function renderHome() {
 
   const homeMap = await Map.build('#home-map', { zoom: 13, locate: true });
   
-  try {
-    const stories = await getStories();
-    if (stories.length > 0) {
-      recentStoriesEl.innerHTML = stories.slice(0, 6).map(story => `
-        <article class="story-card">
-          <img src="${story.photoUrl || '/src/images/logo.png'}" alt="${story.name}" loading="lazy">
-          <div class="story-info">
-            <h3>${story.name}</h3>
-            <p>${story.description || 'No description'}</p>
-            <small>🕒 ${new Date(story.createdAt).toLocaleDateString('id-ID')}</small>
-          </div>
-        </article>
-      `).join('');
-      
-      stories.forEach(story => {
-        if (story.lat && story.lon) {
-          homeMap.addMarker(parseFloat(story.lat), parseFloat(story.lon), `<b>${story.name}</b>`);
-        }
-      });
-    } else {
-      recentStoriesEl.innerHTML = '<p style="text-align: center; color: var(--gray-500);">No stories yet. Be the first to share!</p>';
-    }
-  } catch (error) {
-    console.error('Home page load error:', error);
+  if (!isLoggedIn()) {
     recentStoriesEl.innerHTML = `
       <div class="loading-error" style="grid-column: 1/-1;">
-        <p>Couldn\'t load stories</p>
-        <p>Check your connection or try again</p>
+        <p>Please login to view stories</p>
+        <a href="#/login" data-nav class="btn btn-secondary mt-4">Go to Login</a>
       </div>
-    `;
+  `;
+  } else {
+    try {
+      const stories = await getStories();
+      if (stories.length > 0) {
+        recentStoriesEl.innerHTML = stories.slice(0, 6).map(story => `
+          <article class="story-card">
+            <img src="${story.photoUrl || '/src/images/logo.png'}" alt="${story.name}" loading="lazy">
+            <div class="story-info">
+              <h3>${story.name}</h3>
+              <p>${story.description || 'No description'}</p>
+              <small>🕒 ${new Date(story.createdAt).toLocaleDateString('id-ID')}</small>
+            </div>
+          </article>
+        `).join('');
+        
+        stories.forEach(story => {
+          if (story.lat && story.lon) {
+            homeMap.addMarker(parseFloat(story.lat), parseFloat(story.lon), `<b>${story.name}</b>`);
+          }
+        });
+      } else {
+        recentStoriesEl.innerHTML = '<p style="text-align: center; color: var(--gray-500);">No stories yet. Be the first to share!</p>';
+      }
+    } catch (error) {
+      console.error('Home page load error:', error);
+      recentStoriesEl.innerHTML = `
+        <div class="loading-error" style="grid-column: 1/-1;">
+          <p>Couldn\'t load stories</p>
+          <p>Check your connection or try again</p>
+        </div>
+      `;
+    }
   }
 
   content.classList.add('active');

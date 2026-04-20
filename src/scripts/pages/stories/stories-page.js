@@ -83,6 +83,11 @@ async function renderStoriesPage() {
       renderRecentStories(recentStoriesEl, stories);
       addMarkers(storiesMap, stories);
     } catch (error) {
+      if (error.message.includes('401')) {
+        localStorage.removeItem('token');
+        window.location.hash = '#/login';
+        return;
+      }
       console.error('Error loading stories:', error);
       recentStoriesEl.innerHTML = '<div class="loading-error">Failed to load stories. Try refreshing.</div>';
       favStatus.textContent = 'Offline: using cached data';

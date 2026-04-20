@@ -10,7 +10,10 @@ const getAuthHeaders = () => {
 
 export async function getStories() {
   try {
-    const response = await fetch(`${API_BASE}/stories?page=1&size=10&location=1`, {
+    const token = localStorage.getItem('token');
+    let url = `${API_BASE}/stories?page=1&size=10&location=1`;
+    if (token) url += `&token=${encodeURIComponent(token)}`;
+    const response = await fetch(url, {
       headers: getAuthHeaders()
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -18,6 +21,10 @@ export async function getStories() {
     if (data.error) throw new Error(data.message);
     return data.listStory || [];
   } catch (error) {
+    if (error.message.includes('401')) {
+      localStorage.removeItem('token');
+      window.location.hash = '#/login';
+    }
     console.error('Error fetching stories:', error);
     return [];
   }
