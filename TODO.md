@@ -1,16 +1,17 @@
-## Pending:
-- [ ] 4. gh repo create (public)
-- [ ] 5. git add .
-- [ ] 6. git commit -m "Deploy ready"
-- [ ] 7. git push -u origin main
-- [ ] 8. Enable GitHub Pages on main branch
-- [ ] 9. Update STUDENT.txt with URL
+## GitHub Pages Deployment - Plan Execution
 
-## Completed:
-- [x] 1. Complete npm run build (dist files)
-- [x] 2. Create .gitignore
+### Remaining Steps:
+- [ ] Manual: Enable GitHub Pages on main branch (repo Settings > Pages > Source: main / (root) > Save)
+- [ ] Verify live URL: https://Zacky171.github.io/starter-project-with-webpack/
+
+### All Previous Steps Completed:
+- [x] 1. Complete npm run build (dist files generated)
+- [x] 2. Create .gitignore 
 - [x] 3. git init
 - [x] Understand project files
-- [x] Plan approved
+- [x] Deployment plan approved
 - [x] Run npm run build
-- [x] Updated TODO.md
+- [x] Update TODO.md for tracking
+- [x] Stage, commit, push final changes
+
+**Note:** dist/ folder is built and tracked. STUDENT.txt has URL. After manual enable, app publicly accessible.
