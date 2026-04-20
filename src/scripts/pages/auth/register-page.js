@@ -25,9 +25,12 @@ function togglePasswordVisibility(btn, inputId) {
   const input = document.getElementById(inputId);
   if (input.type === 'password') {
     input.type = 'text';
+    btn.title = 'Hide password';
   } else {
     input.type = 'text';
     input.type = 'password';
+    btn.title = 'Show password';
+
   }
 }
 
@@ -50,12 +53,12 @@ function renderRegisterForm() {
       <div class="form-group">
         <input type="password" id="reg-password" autocomplete="new-password" placeholder="Buat password (min 6 karakter)" minlength="6" required>
         <div class="password-strength"></div>
-        <button type="button" class="password-toggle" id="toggle-password" title="Show password">👁️</button>
+        <button type="button" class="password-toggle" id="toggle-password" title="Show password"></button>
       </div>
       <label for="reg-confirm-password">Konfirmasi Password</label>
       <div class="form-group">
         <input type="password" id="reg-confirm-password" autocomplete="new-password" placeholder="Ulangi password Anda" required minlength="6">
-        <button type="button" class="password-toggle" id="toggle-confirm-password" title="Show password">👁️</button>
+        <button type="button" class="password-toggle" id="toggle-confirm-password" title="Show password"></button>
       </div>
       <div id="reg-error" class="error" role="alert" aria-live="polite"></div>
       <button type="submit" class="btn btn-primary large-btn" id="register-btn">
@@ -91,10 +94,9 @@ function renderRegisterForm() {
     
     errorEl.style.display = 'none';
     submitBtn.disabled = true;
-    submitBtn.classList.add('loading');
-    submitBtn.textContent = 'Membuat akun...';
+    startLoadingDots(submitBtn, 'Membuat akun');
     
-    // Validations
+    // Client-side validations first
     if (name.length < 2) {
       errorEl.textContent = 'Nama minimal 2 karakter';
       errorEl.style.display = 'block';
@@ -126,8 +128,7 @@ function renderRegisterForm() {
     
     try {
       await register(email, password, name);
-      // Success - could show success message before redirect
-      window.location.hash = '#/stories';
+      window.location.hash = '#/login';
     } catch (error) {
       errorEl.textContent = error.message || 'Registrasi gagal. Email mungkin sudah digunakan.';
       errorEl.style.display = 'block';
@@ -138,7 +139,7 @@ function renderRegisterForm() {
   
   function resetForm() {
     submitBtn.disabled = false;
-    submitBtn.classList.remove('loading');
+    stopLoadingDots(submitBtn);
     submitBtn.textContent = 'Buat Akun Saya';
   }
   
@@ -146,6 +147,26 @@ function renderRegisterForm() {
   app.innerHTML = '';
   app.appendChild(content);
   setTimeout(() => content.classList.add('active'), 100);
+}
+
+function startLoadingDots(btn, baseText) {
+  btn.dataset.baseText = baseText;
+  btn.dataset.dots = 0;
+  const interval = setInterval(() => {
+    const dots = (btn.dataset.dots % 4);
+    btn.textContent = baseText + '.'.repeat(dots);
+    btn.dataset.dots = dots + 1;
+  }, 400);
+  btn.dataset.intervalId = interval;
+}
+
+function stopLoadingDots(btn) {
+  if (btn.dataset.intervalId) {
+    clearInterval(btn.dataset.intervalId);
+    delete btn.dataset.intervalId;
+    delete btn.dataset.dots;
+    delete btn.dataset.baseText;
+  }
 }
 
 export default renderRegisterForm;

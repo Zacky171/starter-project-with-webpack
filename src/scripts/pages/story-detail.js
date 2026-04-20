@@ -1,6 +1,8 @@
 import { getStories } from '../data/api.js';
 import Map from '../utils/map.js';
+import { isLoggedIn } from '../utils/auth.js';
 import { getFavorites, addFavorite, removeFavorite } from '../utils/db.js';
+
 
 let favIds = new Set();
 
@@ -18,8 +20,15 @@ async function renderStoryDetail(id) {
   app.innerHTML = '';
   app.appendChild(content);
 
+  if (!isLoggedIn()) {
+    content.innerHTML = '<div class="loading-error">Please login to view story details.</div>';
+    window.location.hash = '#/login';
+    return;
+  }
+
   try {
     const stories = await getStories();
+
     const story = stories.find(s => s.id == id);
     if (!story) {
       content.innerHTML = '<p>Story not found</p>';
@@ -35,6 +44,7 @@ async function renderStoryDetail(id) {
         <img src="${story.photoUrl || ''}" alt="${story.name}">
         <h1>${story.name}</h1>
         <p>${story.description || 'No description'}</p>
+        ${story.story ? `<div class="story-content">${story.story}</div>` : ''}
         <div class="meta">${new Date(story.createdAt).toLocaleDateString('id-ID')}</div>
         <button onclick="window.toggleFav('${story.id}', event)" class="fav-btn ${isFav ? 'active' : ''}">
           ${isFav ? '❤️ Unlike' : '🤍 Like'}

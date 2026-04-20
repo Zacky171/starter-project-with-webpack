@@ -5,11 +5,9 @@ function togglePasswordVisibility(btn, inputId) {
   const input = document.getElementById(inputId);
   if (input.type === 'password') {
     input.type = 'text';
-    btn.innerHTML = '&nbsp;🙈';
     btn.title = 'Hide password';
   } else {
     input.type = 'password';
-    btn.innerHTML = '&nbsp;👁️';
     btn.title = 'Show password';
   }
 }
@@ -21,14 +19,14 @@ function renderLoginForm() {
     <h1>Selamat Datang Kembali</h1>
     <p class="subtitle">Masuk untuk melanjutkan petualangan cerita Anda</p>
     <form id="login-form">
+    <label for="email">Email</label>
       <div class="form-group">
-        <label for="email">Email</label>
         <input type="email" id="email" autocomplete="email" placeholder="Masukkan email Anda" required aria-describedby="email-error">
       </div>
+    <label for="password">Password</label>
       <div class="form-group">
-        <label for="password">Password</label>
         <input type="password" id="password" autocomplete="current-password" placeholder="Masukkan password" required aria-describedby="pass-error">
-        <button type="button" class="password-toggle" id="toggle-login-password" title="Show password">👁️</button>
+        <button type="button" class="password-toggle" id="toggle-login-password" title="Show password"></button>
       </div>
       <div id="login-error" class="error" role="alert" aria-live="polite"></div>
       <button type="submit" class="btn btn-primary large-btn" id="login-btn">
@@ -55,8 +53,7 @@ function renderLoginForm() {
     
     errorEl.style.display = 'none';
     submitBtn.disabled = true;
-    submitBtn.classList.add('loading');
-    submitBtn.textContent = 'Masuk...';
+    startLoadingDots(submitBtn, 'Masuk');
     
     try {
       await login(email, password);
@@ -66,7 +63,7 @@ function renderLoginForm() {
       errorEl.style.display = 'block';
     } finally {
       submitBtn.disabled = false;
-      submitBtn.classList.remove('loading');
+      stopLoadingDots(submitBtn);
       submitBtn.textContent = 'Masuk Sekarang';
     }
   });
@@ -75,6 +72,26 @@ function renderLoginForm() {
   app.innerHTML = '';
   app.appendChild(content);
   setTimeout(() => content.classList.add('active'), 100);
+}
+
+function startLoadingDots(btn, baseText) {
+  btn.dataset.baseText = baseText;
+  btn.dataset.dots = 0;
+  const interval = setInterval(() => {
+    const dots = (btn.dataset.dots % 4);
+    btn.textContent = baseText + '.'.repeat(dots);
+    btn.dataset.dots = dots + 1;
+  }, 400);
+  btn.dataset.intervalId = interval;
+}
+
+function stopLoadingDots(btn) {
+  if (btn.dataset.intervalId) {
+    clearInterval(btn.dataset.intervalId);
+    delete btn.dataset.intervalId;
+    delete btn.dataset.dots;
+    delete btn.dataset.baseText;
+  }
 }
 
 export default renderLoginForm;

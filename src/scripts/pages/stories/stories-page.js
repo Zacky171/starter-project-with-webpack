@@ -1,6 +1,8 @@
 import { getStories } from '../../data/api.js';
 import Map from '../../utils/map.js';
 import { getFavorites, addFavorite, removeFavorite, searchFavorites, sortFavorites } from '../../utils/db.js';
+import { isLoggedIn } from '../../utils/auth.js';
+
 
 let stories = [];
 let favorites = [];
@@ -44,18 +46,37 @@ async function renderStoriesPage() {
   app.innerHTML = '';
   app.appendChild(content);
 
-  const storyMapDiv = content.querySelector('#story-map');
+  // Add loading state immediately
   const recentStoriesEl = content.querySelector('#recent-stories');
   const favGrid = content.querySelector('#favorites-grid');
+  const favStatus = content.querySelector('#fav-status');
+  const storyMapDiv = content.querySelector('#story-map');
   const favSearch = content.querySelector('#fav-search');
   const favSort = content.querySelector('#fav-sort');
-  const favStatus = content.querySelector('#fav-status');
 
-  // Init map
+  recentStoriesEl.innerHTML = `
+    <div class="loading-container">
+      <div class="loading loading-large"></div>
+      <p class="loading-text">Loading stories...</p>
+    </div>
+  `;
+  favGrid.innerHTML = `
+    <div class="loading-container">
+      <div class="loading"></div>
+      <p class="loading-text">Loading favorites...</p>
+    </div>
+  `;
+
+  // Init map (async, shows blank until ready)
   const storiesMap = await Map.build('#story-map', { zoom: 12, locate: true });
 
   // Load stories
   const loadStories = async () => {
+    if (!isLoggedIn()) {
+      window.location.hash = '#/login';
+      recentStoriesEl.innerHTML = '<div class="loading-error">Please login to view stories.</div>';
+      return;
+    }
     try {
       const data = await getStories();
       stories = data;
@@ -63,9 +84,11 @@ async function renderStoriesPage() {
       addMarkers(storiesMap, stories);
     } catch (error) {
       console.error('Error loading stories:', error);
+      recentStoriesEl.innerHTML = '<div class="loading-error">Failed to load stories. Try refreshing.</div>';
       favStatus.textContent = 'Offline: using cached data';
     }
   };
+
 
   // Load favorites
   const loadFavorites = async () => {
@@ -75,10 +98,11 @@ async function renderStoriesPage() {
       renderFavorites(favGrid, favorites);
     } catch (error) {
       console.error('Error loading favorites:', error);
+      favGrid.innerHTML = '<div class="loading-error">Failed to load favorites.</div>';
     }
   };
 
-await loadStories();
+  await loadStories();
   await loadFavorites();
   
   // Auto-scroll a bit down to recent stories after load (task: agak kebawah)
@@ -167,6 +191,7 @@ function createStoryCard(story) {
       <div class="story-info">
         <h3>${story.name}</h3>
         <p>${story.description || 'No description'}</p>
+        ${story.story ? `<p class="story-content"><strong>Story:</strong> ${story.story}</p>` : ''}
         <small>🕒 ${new Date(story.createdAt).toLocaleDateString('id-ID')}</small>
       </div>
       <button class="fav-btn ${isFav ? 'fav-active' : ''}" onclick="window.toggleFav('${story.id}', event)" aria-label="${isFav ? 'Remove favorite' : 'Add favorite'}" title="${isFav ? 'Unlike' : 'Like'}">

@@ -36,11 +36,16 @@ self.addEventListener('fetch', event => {
   if (url.origin === location.origin) {
     event.respondWith(cacheFirst(event.request));
   } else if (url.href.startsWith(API_BASE)) {
+    // Skip auth-required API calls in SW - let main app handle
+    if (url.pathname.includes('/stories') || url.pathname.includes('/push')) {
+      return fetch(event.request);
+    }
     event.respondWith(networkFirst(event.request));
   } else {
     event.respondWith(networkFirst(event.request));
   }
 });
+
 
 async function cacheFirst(request) {
   const cache = await caches.open(CACHE_NAME);
@@ -71,8 +76,8 @@ self.addEventListener('push', event => {
   const data = event.data.json();
   const options = {
     body: data.body || data.description,
-    icon: data.icon || '/icons/icon-192.png',
-    badge: '/icons/icon-192.png',
+    icon: data.icon || '/icons/logo.png',
+    badge: '/icons/logo.png',
     image: data.image || data.photoUrl,
     data: { id: data.id },
     actions: [{
@@ -91,4 +96,3 @@ self.addEventListener('notificationclick', event => {
     event.waitUntil(clients.openWindow('/'));
   }
 });
-

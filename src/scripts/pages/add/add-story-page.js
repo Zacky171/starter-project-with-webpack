@@ -2,6 +2,8 @@ import { slideTransition } from '../../utils/transition.js';
 import L from 'leaflet';
 import { postStory } from '../../data/api.js';
 import { MAP } from '../../config.js';
+import { isLoggedIn } from '../../utils/auth.js';
+
 
 let addMap, selectedLatLng = null;
 let cameraStream = null;
@@ -24,6 +26,10 @@ function initAddMap() {
 
 async function handleSubmit(e) {
   e.preventDefault();
+  if (!isLoggedIn()) {
+    window.location.hash = '#/login';
+    return;
+  }
   if (!selectedLatLng) {
     showError('Klik peta untuk memilih lokasi.');
     return;
@@ -40,6 +46,7 @@ async function handleSubmit(e) {
     showError('Gagal menambahkan story: ' + error.message + '. Coba gambar lebih kecil (<5MB).');
   }
 }
+
 
 function getCameraStream() {
   if (cameraStream) {
@@ -119,14 +126,8 @@ function renderAddPage() {
     </div>
     <form id="add-story-form" class="add-form">
       <div class="form-row">
+      <label for="image-upload">Gambar</label>
         <div class="form-group">
-          <label for="description">Deskripsi</label>
-          <textarea id="description" name="description" rows="4" placeholder="Ceritakan pengalaman Anda..." required></textarea>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="image-upload">Gambar</label>
           <div class="image-inputs">
             <input type="file" id="image-upload" name="photo" accept="image/*" required>
             <button type="button" id="camera-btn" class="btn-secondary">📷 Kamera</button>
@@ -135,6 +136,12 @@ function renderAddPage() {
           <canvas id="canvas" style="display:none;"></canvas>
           <img id="image-preview" class="image-preview" alt="Preview gambar">
           <button type="button" id="capture" class="btn btn-secondary" style="display:none;">Capture</button>
+        </div>
+      </div>
+      <div class="form-row">
+      <label for="description">Deskripsi</label>
+        <div class="form-group">
+          <textarea id="description" name="description" rows="4" placeholder="Judul singkat pengalaman Anda..." required></textarea>
         </div>
       </div>
       <div class="map-section">

@@ -14,11 +14,17 @@ function runApp() {
   initRouter();
   updateNavAuth();
   
-  // Guard routes
-  if (!isLoggedIn() && (window.location.hash === '#/add' || window.location.hash === '#/stories')) {
+  // Guard routes - check current hash
+  guardProtectedRoutes();
+}
+
+function guardProtectedRoutes() {
+  const protectedHashes = ['#/add', '#/stories'];
+  if (!isLoggedIn() && protectedHashes.includes(window.location.hash)) {
     window.location.hash = '#/login';
   }
 }
+
 
 function updateNavAuth() {
   const nav = document.querySelector('nav');
@@ -69,4 +75,8 @@ function updateNavAuth() {
 }
 
 // Re-check on route changes
-window.addEventListener('hashchange', updateNavAuth);
+window.addEventListener('hashchange', () => {
+  updateNavAuth();
+  guardProtectedRoutes();
+});
+
